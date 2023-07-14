@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+    <script src="https://unpkg.com/papaparse/papaparse.min.js"></script>
+    <style>
+        #map { height: 100%; }
+    </style>
+</head>
+<body style="height: 100vh; margin: 0">
+    <div id="map"></div>
+
+    <script>
+    var map = L.map('map', { preferCanvas: true }).setView([51.505, -0.09], 2);
+    var markers = L.markerClusterGroup();
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+    }).addTo(map);
+
+    Papa.parse('merged_data_cleaned.csv', {
+        download: true,
+        header: true,
+        dynamicTyping: true,
+        complete: function(results) {
+            console.log(results.data); // Log the parsed data
+            results.data.forEach(function(point) {
+                if (point.LATITUDE !== undefined && point.LONGITUDE !== undefined) {
+                    var marker = L.marker([point.LATITUDE, point.LONGITUDE])
+                    .bindTooltip("AUPPB_NA: " + point.AUPPB_NA, {permanent: true, direction: 'right'});
+                    markers.addLayer(marker);
+                }
+            });
+            map.addLayer(markers);
+            console.log("Markers added to map"); // Log when markers are added
+        }
+    });
+    </script>
+</body>
+</html>
